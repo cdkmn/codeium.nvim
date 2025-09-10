@@ -104,6 +104,7 @@ function M:get_completions(ctx, callback)
 	local offset = ctx.bounds.start_col
 	local cursor = ctx.cursor
 	local bufnr = ctx.bufnr
+	local buf_name = vim.api.nvim_buf_get_name(bufnr)
 	local filetype = vim.api.nvim_get_option_value("filetype", { buf = ctx.bufnr })
 	filetype = enums.filetype_aliases[filetype] or filetype or "text"
 	local language = enums.languages[filetype] or enums.languages.unspecified
@@ -114,6 +115,12 @@ function M:get_completions(ctx, callback)
 	local editor_options = util.get_editor_options(bufnr)
 	local buf_name = vim.api.nvim_buf_get_name(bufnr)
 
+	if buf_name == "" then
+		callback(nil)
+		return function() end
+	end
+
+	-- Bail if we have no path
 	if buf_name == "" then
 		callback(nil)
 		return function() end
